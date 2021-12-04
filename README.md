@@ -1,9 +1,10 @@
 # MyGSMCenter
 
 This is a simple Arduino GSM gateway software.
-Convert AT commands to simple line instructions and communicate ower serial port.
+Convert AT commands to simple line instructions and communicate ower serial port. Receive responses in JSON formatted lines.
 I used Arduino Leonardo for open two COM ports. One for commands another for communicate with the SIM900 shield.
 The Eventually library is needed for task scheduling.
+
 
 Commands that can send ower serial port:
 
@@ -22,3 +23,4 @@ STATUS - check modem status (https://m2msupport.net/m2msupport/atcpas-phone-acti
 POWER - switch power button by software
 
 INITMODEM - init modem for turn on caller ID notification, set sms receive, set module to send SMS data to seírial out upon receipt
+
