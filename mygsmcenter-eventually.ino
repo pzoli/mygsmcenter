@@ -63,11 +63,6 @@ bool serialAction() {
   return true;
 }
 
-void balance() {
-  Serial1.println(F("AT+CUSD=1,\"*102#\"\r"));
-  //Serial1.println(F("AT+CUSD=1,\"2\"\r"));
-}
-
 bool requestAction() {
   request_char = Serial.read();
   if (request_char == '\n') {
@@ -90,6 +85,10 @@ bool requestAction() {
     request_line.concat(request_char);
   }
   return true;
+}
+
+void balance() {
+  Serial1.println(F("AT+CUSD=1,\"*102#\"\r"));
 }
 
 void sendSMS(String targetPhoneNumber, String msg) {
@@ -121,6 +120,37 @@ void answer() {
   Serial1.print("ATA\r");
 }
 
+String getStatus() {
+  Serial1.println("AT+CPAS");
+  delay(1000);
+  String result = "";
+  while(Serial1.available()) {
+    char c = Serial1.read();
+    result.concat(c);
+  }
+  //Serial.print("status.length=");
+  //Serial.println(result.length());
+  if (result.length()>0) {    
+    int startIdx = result.indexOf("+CPAS:");
+    //Serial.print("gsm[");  
+    //Serial.print(startIdx);
+    //Serial.print(","); 
+    if (startIdx > -1) {
+      int endIdx = result.indexOf("\r\n",startIdx);
+      //Serial.print(endIdx);
+      //Serial.println("]");
+      if (endIdx > -1) {
+        Serial.print(F("{\"action\":\"status\",\""));
+        Serial.print(result.substring(startIdx,endIdx));    
+        Serial.println("\"}");
+      }
+    }
+  } else {
+        Serial.println(F("{\"action\":\"status\",\"power off\"}"));
+  }
+  return result;
+}
+
 String getValue(String data, char separator, int index) {
     int found = 0;
     int strIndex[] = { 0, -1 };
@@ -144,28 +174,32 @@ void setup() {
   // Make sure that corresponds to the baud rate of your module
   Serial1.begin(19200); // for GSM shield
 
-  // Power On GSM shield
-  // https://arduino.stackexchange.com/questions/28331/solved-soft-power-on-sim900-module-jp-pads-missing
-  pinMode(9, OUTPUT); 
-  digitalWrite(9,LOW);
-  delay(1000);
-  digitalWrite(9,HIGH);
-  delay(2000);
-  pinMode(9, INPUT);
+  String gsmStatus = getStatus();
+  if (gsmStatus.length() == 0) {  
+    // Power On GSM shield
+    // https://arduino.stackexchange.com/questions/28331/solved-soft-power-on-sim900-module-jp-pads-missing
+    pinMode(9, OUTPUT); 
+    digitalWrite(9,LOW);
+    delay(1000);
+    digitalWrite(9,HIGH);
+    delay(2000);
+    pinMode(9, INPUT);
+    // For serial monitor
+
+    // Give time to log on to network.
+    delay(10000); 
+    
+    Serial1.print(F("AT+CLIP=1\r")); // turn on caller ID notification
+    delay(100);
+    // AT command to set SIM900 to SMS mode
+    Serial1.print(F("AT+CMGF=1\r")); 
+    delay(100);
+    // Set module to send SMS data to serial out upon receipt 
+    Serial1.print(F("AT+CNMI=2,2,0,0,0\r"));
+    delay(100);
   
-  // For serial monitor
-  // Give time to log on to network.
-  delay(10000); 
-  
-  Serial1.print(F("AT+CLIP=1\r")); // turn on caller ID notification
-  delay(100);
-  // AT command to set SIM900 to SMS mode
-  Serial1.print(F("AT+CMGF=1\r")); 
-  delay(100);
-  // Set module to send SMS data to serial out upon receipt 
-  Serial1.print(F("AT+CNMI=2,2,0,0,0\r"));
-  delay(100);
-  
+  }
+    
   Serial.println(F("{\"action\":\"setup\",\"message\":\"Ready to receive calls...\"}"));
   
   mgr.addListener(new EvtSerialListener(&Serial1, (EvtAction) serialAction));
