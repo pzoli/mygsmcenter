@@ -79,6 +79,8 @@ bool requestAction() {
       answer();
     } else if (request_line.indexOf(F("BALANCE")) > -1) {
       balance();
+    } else if (request_line.indexOf(F("STATUS")) > -1) {
+      getStatus();
     }
     request_line = "";
   } else {
