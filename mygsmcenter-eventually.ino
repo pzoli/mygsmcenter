@@ -121,6 +121,7 @@ void answer() {
 }
 
 String getStatus() {
+  // https://m2msupport.net/m2msupport/atcpas-phone-activity-status/
   Serial1.println("AT+CPAS");
   delay(1000);
   String result = "";
