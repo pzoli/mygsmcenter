@@ -81,6 +81,10 @@ bool requestAction() {
       balance();
     } else if (request_line.indexOf(F("STATUS")) > -1) {
       getStatus();
+    } else if (request_line.indexOf(F("POWER")) > -1) {
+      powerSwithc();
+    } else if (request_line.indexOf(F("INITMODEM")) > -1) {
+      initModem();
     }
     request_line = "";
   } else {
@@ -154,6 +158,28 @@ String getStatus() {
   return result;
 }
 
+void powerSwithc() {
+    // Power On GSM shield
+    // https://arduino.stackexchange.com/questions/28331/solved-soft-power-on-sim900-module-jp-pads-missing
+    pinMode(9, OUTPUT); 
+    digitalWrite(9,LOW);
+    delay(1000);
+    digitalWrite(9,HIGH);
+    delay(2000);
+    pinMode(9, INPUT);  
+}
+
+void initModem() {
+    Serial1.print(F("AT+CLIP=1\r")); // turn on caller ID notification
+    delay(100);
+    // AT command to set SIM900 to SMS mode
+    Serial1.print(F("AT+CMGF=1\r")); 
+    delay(100);
+    // Set module to send SMS data to serial out upon receipt 
+    Serial1.print(F("AT+CNMI=2,2,0,0,0\r"));
+    delay(100);
+}
+
 String getValue(String data, char separator, int index) {
     int found = 0;
     int strIndex[] = { 0, -1 };
@@ -179,28 +205,11 @@ void setup() {
 
   String gsmStatus = getStatus();
   if (gsmStatus.length() == 0) {  
-    // Power On GSM shield
-    // https://arduino.stackexchange.com/questions/28331/solved-soft-power-on-sim900-module-jp-pads-missing
-    pinMode(9, OUTPUT); 
-    digitalWrite(9,LOW);
-    delay(1000);
-    digitalWrite(9,HIGH);
-    delay(2000);
-    pinMode(9, INPUT);
+    powerSwithc();
     // For serial monitor
-
     // Give time to log on to network.
     delay(10000); 
-    
-    Serial1.print(F("AT+CLIP=1\r")); // turn on caller ID notification
-    delay(100);
-    // AT command to set SIM900 to SMS mode
-    Serial1.print(F("AT+CMGF=1\r")); 
-    delay(100);
-    // Set module to send SMS data to serial out upon receipt 
-    Serial1.print(F("AT+CNMI=2,2,0,0,0\r"));
-    delay(100);
-  
+    initModem();
   }
     
   Serial.println(F("{\"action\":\"setup\",\"message\":\"Ready to receive calls...\"}"));

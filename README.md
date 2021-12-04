@@ -16,3 +16,9 @@ BALANCE - get user balance
 ANSWER - answer incoming call
 
 HANGUP - hangup call or ring
+
+STATUS - check modem status (https://m2msupport.net/m2msupport/atcpas-phone-activity-status/)
+
+POWER - switch power button by software
+
+INITMODEM - init modem for turn on caller ID notification, set sms receive, set module to send SMS data to seírial out upon receipt
