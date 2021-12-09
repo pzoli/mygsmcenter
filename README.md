@@ -24,3 +24,6 @@ POWER - switch power button by software
 
 INITMODEM - init modem for turn on caller ID notification, set sms receive, set module to send SMS data to seírial out upon receipt
 
+DEBUG - turn on/off debug informations. If debug is on, AT response printed to serial port
+
+AT:command - send pure AT command to SIM900 module

@@ -8,11 +8,14 @@ String request_line = "";
 bool isIncomingSMS = false;
 String phoneNumber = "";
 EvtManager mgr;
+bool debug = false;
 
 bool serialAction() {
   incoming_char=Serial1.read();
   arrived_line.concat(incoming_char);
-  //Serial.print(incoming_char);
+  if (debug) {
+      Serial.print(incoming_char);
+  }
   if (incoming_char == '\n') {
     if (isIncomingSMS) {
       Serial.print("{\"action\":\"sms\",\"from\":\"");
@@ -85,12 +88,37 @@ bool requestAction() {
       powerSwithc();
     } else if (request_line.indexOf(F("INITMODEM")) > -1) {
       initModem();
+    } else if (request_line.indexOf(F("DEBUG")) > -1) {
+      debug = !debug;
+      if (debug) {
+        Serial.println(F("{action=\"debug\", \"ON\"}"));
+      } else {
+        Serial.println(F("{action=\"debug\", \"OFF\"}"));
+      }
+    }
+      else if (request_line.indexOf(F("AT:")) > -1) {
+      sendSerialAT(request_line.substring(3));
     }
     request_line = "";
   } else {
     request_line.concat(request_char);
   }
   return true;
+}
+
+void sendSerialAT(String command) {
+  Serial1.println(command);
+}
+
+void enableGPRS() {
+  Serial1.println(F("AT+SAPBR=3,1,\"Contype\",\"GPRS\""));
+  Serial.println(Serial1.readString());
+  Serial1.println(F("AT+SAPBR=3,1,\"APN\",\"INTERNET.TELEKOM\""));
+  Serial.println(Serial1.readString());
+  Serial1.println(F("AT+SAPBR=1,1")); //Enable gprs
+  Serial.println(Serial1.readString());
+  Serial1.println(F("AT+SAPBR=2,1"));  //Display IP
+  Serial.println(Serial1.readString());
 }
 
 void balance() {
