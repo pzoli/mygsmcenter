@@ -28,7 +28,7 @@ bool serialAction() {
         // If the message received from the shield is RING
         // Send ATA commands to answer the phone
         // Serial1.print("ATA\r");
-    } else if (arrived_line.indexOf("+CLIP:") > -1) {
+    } else if (arrived_line.indexOf("+CLIP:") == 0) {
       //+CLIP: "+36301234567",145,"",,"",0
       int start = arrived_line.indexOf("\"");
       int end = arrived_line.indexOf("\"",start+1);
@@ -38,7 +38,7 @@ bool serialAction() {
         Serial.print(phoneNumber);
         Serial.println("\"}");
       }
-    } else if (arrived_line.indexOf("+CMT:") > -1) {
+    } else if (arrived_line.indexOf("+CMT:") == 0) {
       //+CMT: "+36301234567","","21/11/23,17:07:41+04"
       int start = arrived_line.indexOf("\"");
       int end = arrived_line.indexOf("\"",start+1);
@@ -46,15 +46,15 @@ bool serialAction() {
       if (phoneNumber.length() > 0) {
         isIncomingSMS = true;
       }
-    } else if (arrived_line.indexOf("OK") > -1) {
+    } else if (arrived_line.indexOf("OK") == 0) {
       Serial.println(F("{\"action\":\"result\",\"status\":\"OK\"}"));
-    } else if (arrived_line.indexOf("ERROR") > -1) {
+    } else if (arrived_line.indexOf("ERROR") == 0) {
       Serial.println(F("{\"action\":\"result\",\"status\":\"ERROR\"}"));
-    } else if (arrived_line.indexOf("NO CARRIER") > -1) {
+    } else if (arrived_line.indexOf("NO CARRIER") == 0) {
       Serial.println(F("{\"action\":\"call-status\",\"status\":\"NO CARRIER\"}"));
-    } else if (arrived_line.indexOf("BUSY") > -1) {
+    } else if (arrived_line.indexOf("BUSY") == 0) {
       Serial.println(F("{\"action\":\"call-status\",\"status\":\"BUSY\"}"));
-    } else if (arrived_line.indexOf("+CUSD: 0,") > -1) {
+    } else if (arrived_line.indexOf("+CUSD: 0,") == 0) {
       int start = arrived_line.indexOf("\"");
       int end = arrived_line.indexOf("\"", start + 1);
       Serial.print(F("{\"action\":\"balance\",\"message\":\""));
@@ -70,25 +70,25 @@ bool requestAction() {
   request_char = Serial.read();
   if (request_char == '\n') {
     //Serial.print(request_line);
-    if (request_line.indexOf(F("SMS:")) > -1) {
+    if (request_line.indexOf(F("SMS:")) == 0) {
       String targetPhone = getValue(request_line,':',1);
       String message = getValue(request_line,':',2);
       sendSMS(targetPhone,message);
-    } else if (request_line.indexOf(F("CALL:")) > -1) {
+    } else if (request_line.indexOf(F("CALL:")) == 0) {
       call(request_line.substring(5));
-    } else if (request_line.indexOf(F("HANGUP")) > -1) {
+    } else if (request_line.indexOf(F("HANGUP")) == 0) {
       hangUp();
-    } else if (request_line.indexOf(F("ANSWER")) > -1) {
+    } else if (request_line.indexOf(F("ANSWER")) == 0) {
       answer();
-    } else if (request_line.indexOf(F("BALANCE")) > -1) {
+    } else if (request_line.indexOf(F("BALANCE")) == 0) {
       balance();
-    } else if (request_line.indexOf(F("STATUS")) > -1) {
+    } else if (request_line.indexOf(F("STATUS")) == 0) {
       getStatus();
-    } else if (request_line.indexOf(F("POWER")) > -1) {
+    } else if (request_line.indexOf(F("POWER")) == 0) {
       powerSwithc();
-    } else if (request_line.indexOf(F("INITMODEM")) > -1) {
+    } else if (request_line.indexOf(F("INITMODEM")) == 0) {
       initModem();
-    } else if (request_line.indexOf(F("DEBUG")) > -1) {
+    } else if (request_line.indexOf(F("DEBUG")) == 0) {
       debug = !debug;
       if (debug) {
         Serial.println(F("{action=\"debug\", \"ON\"}"));
@@ -96,7 +96,7 @@ bool requestAction() {
         Serial.println(F("{action=\"debug\", \"OFF\"}"));
       }
     }
-      else if (request_line.indexOf(F("AT:")) > -1) {
+      else if (request_line.indexOf(F("AT:")) == 0) {
       sendSerialAT(request_line.substring(3));
     }
     request_line = "";
