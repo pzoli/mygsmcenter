@@ -24,7 +24,7 @@ bool serialAction() {
       Serial.print(arrived_line.substring(0,arrived_line.length()-2));
       Serial.println("\"}");
       isIncomingSMS = false;  
-    } else if (arrived_line.indexOf("RING") > -1) {
+    } else if (arrived_line.indexOf("RING") == 0) {
         // If the message received from the shield is RING
         // Send ATA commands to answer the phone
         // Serial1.print("ATA\r");
