@@ -8,7 +8,7 @@ The Eventually library is needed for task scheduling.
 
 Commands that can send ower serial port:
 
-CALL:+36301234567 - start outgoing call
+CALL:+36301234567; - start outgoing call
 
 SMS:+36301234567:message - send message
 
