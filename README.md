@@ -1,6 +1,6 @@
 # MyGSMCenter
 
-This is a simple Arduino GSM gateway software.
+This is a simple Arduino GSM gateway software for hungarian T-Mobile Telekom provider.
 Convert AT commands to simple line instructions and communicate ower serial port. Receive responses in JSON formatted lines.
 I used Arduino Leonardo for open two COM ports. One for commands another for communicate with the SIM900 shield.
 The Eventually library is needed for task scheduling.
